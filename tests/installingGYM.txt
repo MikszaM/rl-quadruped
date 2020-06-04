@@ -1,0 +1,23 @@
+conda create --name mgr python=3.7
+
+pip install gym
+
+pip install pybullet
+
+conda install pystan
+
+conda install git
+
+pip install git+https://github.com/Kojoley/atari-py.git
+
+conda install swig
+
+pip install Box2D
+
+pip install gym[all]
+
+pip install pyglet==1.2.4
+
+pip install gym[box2d]
+
+conda install -c conda-forge ffmpeg
