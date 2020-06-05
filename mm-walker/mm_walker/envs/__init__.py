@@ -1,1 +1,1 @@
-from mm_walker.envs.mmwalker_env import MMWalkerEnv
+from mm_walker.envs.mm_walker_env import MMWalkerEnv

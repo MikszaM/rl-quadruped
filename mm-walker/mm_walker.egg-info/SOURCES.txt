@@ -1,0 +1,7 @@
+README.md
+setup.py
+mm_walker.egg-info/PKG-INFO
+mm_walker.egg-info/SOURCES.txt
+mm_walker.egg-info/dependency_links.txt
+mm_walker.egg-info/requires.txt
+mm_walker.egg-info/top_level.txt
