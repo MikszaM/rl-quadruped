@@ -13,7 +13,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="Corpus.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/Corpus.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="red"/>
         </visual>
@@ -21,7 +21,7 @@
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <!-- <box size="1.31 1.46 0.6305"/> -->
-                <mesh filename="Corpus.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/Corpus.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
@@ -35,7 +35,7 @@
         <visual>
             <origin xyz="0.08 0.295 0" rpy="3.1415 0 0" />
             <geometry>
-                <mesh filename="UpperLegL.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/UpperLegL.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="black"/>
         </visual>
@@ -43,7 +43,7 @@
             <origin xyz="0.08 0.295 0" rpy="3.1415 0 0" />
             <geometry>
                 <!-- <box size="0.42 0.85 0.42"/> -->
-                <mesh filename="UpperLegL.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/UpperLegL.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
@@ -57,7 +57,7 @@
         <visual>
             <origin xyz="0.08 -0.295 0" rpy="3.1415 0 0" />
             <geometry>
-                <mesh filename="UpperLegR.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/UpperLegR.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="black"/>
         </visual>
@@ -65,7 +65,7 @@
             <origin xyz="0.08 -0.295 0" rpy="3.1415 0 0" />
             <geometry>
                 <!-- <box size="0.42 0.85 0.42"/> -->
-                <mesh filename="UpperLegR.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/UpperLegR.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
@@ -79,7 +79,7 @@
         <visual>
             <origin xyz="-0.08 0.295 0" rpy="0 3.1415 0" />
             <geometry>
-                <mesh filename="UpperLegR.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/UpperLegR.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="black"/>
         </visual>
@@ -87,7 +87,7 @@
             <origin xyz="-0.08 0.295 0" rpy="0 3.1415 0" />
             <geometry>
                 <!-- <box size="0.42 0.85 0.42"/> -->
-                <mesh filename="UpperLegR.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/UpperLegR.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
@@ -101,7 +101,7 @@
         <visual>
             <origin xyz="-0.08 -0.295 0" rpy="0 3.1415 0" />
             <geometry>
-                <mesh filename="UpperLegL.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/UpperLegL.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="black"/>
         </visual>
@@ -109,7 +109,7 @@
             <origin xyz="-0.08 -0.295 0" rpy="0 3.1415 0" />
             <geometry>
                 <!-- <box size="0.42 0.85 0.42"/> -->
-                <mesh filename="UpperLegL.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/UpperLegL.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
@@ -124,14 +124,14 @@
         <visual>
             <origin xyz="0 0.471 0" rpy="3.14 0 1.57" />
             <geometry>
-                <mesh filename="FootL.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/FootL.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="red"/>
         </visual>
         <collision>
             <origin xyz="0 0.471 0" rpy="3.14 0 1.57" />
             <geometry>
-                <mesh filename="FootL.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/FootL.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
@@ -145,14 +145,14 @@
         <visual>
             <origin xyz="0 -0.471 0" rpy="3.14 0 -1.57" />
             <geometry>
-                <mesh filename="FootR.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/FootR.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="red"/>
         </visual>
         <collision>
             <origin xyz="0 -0.471 0" rpy="3.14 0 -1.57" />
             <geometry>
-                <mesh filename="FootR.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/FootR.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
@@ -166,14 +166,14 @@
         <visual>
             <origin xyz="0 0.471 0" rpy="3.14 0 1.57" />
             <geometry>
-                <mesh filename="FootR.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/FootR.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="red"/>
         </visual>
         <collision>
             <origin xyz="0 0.471 0" rpy="3.14 0 1.57" />
             <geometry>
-                <mesh filename="FootR.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/FootR.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
@@ -187,14 +187,14 @@
         <visual>
             <origin xyz="0 -0.471 0" rpy="3.14 0 -1.57" />
             <geometry>
-                <mesh filename="FootL.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/FootL.stl" scale="0.01 0.01 0.01"/>
             </geometry>
             <material name="red"/>
         </visual>
         <collision>
             <origin xyz="0 -0.471 0" rpy="3.14 0 1.57" />
             <geometry>
-                <mesh filename="FootL.stl" scale="0.01 0.01 0.01"/>
+                <mesh filename="../mesh/FootL.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>
         <inertial>
