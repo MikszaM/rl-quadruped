@@ -29,6 +29,9 @@
             <mass value="561"/>
             <inertia ixx="116.6" ixy="-1.1" ixz="-0.05" iyy="102.5" iyz="4.0" izz="198.5"/>
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
 
     <link name="upper_leg_front_left">
@@ -51,9 +54,12 @@
             <origin xyz="0.08 0.295 0" rpy="3.1415 0 0" />
             <inertia ixx="10.9" ixy="-3.2" ixz="-1.9" iyy="7.9" iyz="-3.2" izz="10.9"/>
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
 
-     <link name="upper_leg_rear_left">
+    <link name="upper_leg_rear_left">
         <visual>
             <origin xyz="0.08 -0.295 0" rpy="3.1415 0 0" />
             <geometry>
@@ -73,6 +79,9 @@
             <mass value="22"/>
             <inertia ixx="10.9" ixy="-3.2" ixz="-1.9" iyy="7.9" iyz="-3.2" izz="10.9"/>
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
 
     <link name="upper_leg_front_right">
@@ -95,8 +104,11 @@
             <mass value="22"/>
             <inertia ixx="10.9" ixy="-3.2" ixz="-1.9" iyy="7.9" iyz="-3.2" izz="10.9"/>
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
-   
+
     <link name="upper_leg_rear_right">
         <visual>
             <origin xyz="-0.08 -0.295 0" rpy="0 3.1415 0" />
@@ -118,9 +130,13 @@
             <inertia ixx="10.9" ixy="-3.2" ixz="-1.9" iyy="7.9" iyz="-3.2" izz="10.9"/>
 
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
 
     <link name="foot_front_left">
+       
         <visual>
             <origin xyz="0 0.471 0" rpy="3.14 0 1.57" />
             <geometry>
@@ -139,9 +155,13 @@
             <mass value="72"/>
             <inertia ixx="0.96" ixy="-0.58" ixz="-0.09" iyy="10.9" iyz="-0.07" izz="11.3"/>
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
 
     <link name="foot_rear_left">
+       
         <visual>
             <origin xyz="0 -0.471 0" rpy="3.14 0 -1.57" />
             <geometry>
@@ -160,9 +180,13 @@
             <mass value="72"/>
             <inertia ixx="0.96" ixy="-0.58" ixz="-0.09" iyy="10.9" iyz="-0.07" izz="11.3"/>
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
 
     <link name="foot_front_right">
+       
         <visual>
             <origin xyz="0 0.471 0" rpy="3.14 0 1.57" />
             <geometry>
@@ -181,9 +205,13 @@
             <mass value="72"/>
             <inertia ixx="0.96" ixy="-0.58" ixz="-0.09" iyy="10.9" iyz="-0.07" izz="11.3"/>
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
 
     <link name="foot_rear_right">
+       
         <visual>
             <origin xyz="0 -0.471 0" rpy="3.14 0 -1.57" />
             <geometry>
@@ -202,6 +230,9 @@
             <mass value="72"/>
             <inertia ixx="0.96" ixy="-0.58" ixz="-0.09" iyy="10.9" iyz="-0.07" izz="11.3"/>
         </inertial>
+         <contact> 
+            <lateral_friction value="1"/>
+        </contact>
     </link>
 
 
@@ -252,7 +283,7 @@
         <axis xyz="1 0 0"/>
         <limit effort="93000" lower="-1.9" upper="2.2" velocity="5.1"/>
     </joint>
-    
+
     <joint name="upper_leg_to_foot_fr" type="revolute">
         <parent link="upper_leg_front_right"/>
         <child link="foot_front_right"/>
@@ -266,7 +297,7 @@
         <child link="foot_rear_right"/>
         <origin xyz="0.02 -0.59 -0.08"/>
         <axis xyz="1 0 0"/>
-        <limit effort="93000" lower="-1,9" upper="2.2" velocity="5.1"/>
+        <limit effort="93000" lower="-1.9" upper="2.2" velocity="5.1"/>
     </joint>
 
 
