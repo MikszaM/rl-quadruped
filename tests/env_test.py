@@ -4,7 +4,8 @@ import mm_walker
 import time
 
 def loop(env):
-    for _ in range(100000):
+    for _ in range(50):
+        #input()
         sample = env.action_space.sample()
         env.step(sample)
 
@@ -13,9 +14,10 @@ def main():
     # create the environment
     env = gym.make("mm-walker-v0")
     env.render()
-    # env.log("test2.mp4")
-    env.reset()
     env.debug()
+   # env.log("test2.mp4")
+    res = env.reset()
+    print(res)
     loop(env)
  
 
