@@ -5,8 +5,9 @@ import time
 
 def loop(env):
     for _ in range(50):
-        #input()
+        input()
         sample = env.action_space.sample()
+        print(sample)
         env.step(sample)
 
 

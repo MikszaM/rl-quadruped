@@ -16,8 +16,8 @@ class MMWalkerEnv(gym.Env):
         self.high_limits = np.array([2.4,0.2,0.2,2.4,1.9,2.2,1.9,2.2])
 
         self.action_space = spaces.Box(
-            low=self.low_limits,
-            high=self.high_limits,
+            low=np.array([-1,-1,-1,-1,-1,-1,-1,-1]),
+            high=np.array([1,1,1,1,1,1,1,1]),
             dtype=np.float32)
 
         self.observation_space = spaces.Box(
@@ -25,14 +25,14 @@ class MMWalkerEnv(gym.Env):
         self._observation = []
 
         self.dt = 1./2400.
-        self.freq = 1
+        self.freq = 5
         self.maxVelocity = 5.1
         self.potential = 0
         self._alive = 1
         self.isDebug = False
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0.315
         self.walk_target_x = 0
-        self.walk_target_y = 1e3
+        self.walk_target_y = 1e5
         self.isRender = render
         self.logVideo = False
         self._seed()
@@ -65,7 +65,7 @@ class MMWalkerEnv(gym.Env):
             for _id in range(p.getNumJoints(self.robot)):
                 _name = p.getJointInfo(self.robot, _id)[12].decode('UTF-8')
                 _link_name_to_index[_name] = _id
-                print(f'Link: {_name} {_id}')
+                #print(f'Link: {_name} {_id}')
         return self._observation
 
 
@@ -93,6 +93,7 @@ class MMWalkerEnv(gym.Env):
             p.stepSimulation()
         observation = self._calculate_observation()
         reward = self._calculate_reward()
+        self.reward = reward
         done = self._calculate_done()
         if self.isDebug:
             print(f"Observation: {observation}")
@@ -105,25 +106,37 @@ class MMWalkerEnv(gym.Env):
         for i in range(8):
             p.setJointMotorControl2(self.robot, i,
                             p.POSITION_CONTROL,
-                            targetPosition=action[i],
+                            targetPosition=self.scale_action(self.low_limits[i],self.high_limits[i],action[i]),
                             maxVelocity=self.maxVelocity)
         
 
+    def scale_action(self,low,high,value):
+        scaled = (value+1)*(high-low)/2+low
+        return scaled
+
+
     def _calculate_reward(self):
         alive_coef = 1.0
-        feet_collissions_coef = 1.0
-        progres_coef = 1.0
-        electricity_coef = 1.0
-        stall_torque_coef = 1.0
-        joints_at_limits_coef = 1.0
+        progress_coef = 1.0e1
+        feet_collissions_coef = -2
+        electricity_coef = -1.0e-4
+        stall_torque_coef = -1.0e-9
+        joints_at_limits_coef = -1.0
         alive = self._calculate_alive_bonus()
         collisions = self._calculate_feet_collisions()
         progress = self._calculate_progress()
         electricity_cost = self._calculate_electricity_cost()
         stall_torque_cost = self._calculate_stall_torque_cost()
         joints_at_limits = self.calculate_joints_at_limits()
+        if self.isDebug:
+            print(f"Alive: {alive_coef*alive}")
+            print(f"Collisions: {feet_collissions_coef*collisions}")
+            print(f"Progress: {progress_coef*progress}")
+            print(f"Electricity_cost: {electricity_coef*electricity_cost}")
+            print(f"Stall_torque_cost: {stall_torque_coef*stall_torque_cost}")
+            print(f"Joints_at_limits: {joints_at_limits_coef*joints_at_limits}")
 
-        reward = alive_coef*alive + progres_coef*progress + feet_collissions_coef * \
+        reward = alive_coef*alive + progress_coef*progress + feet_collissions_coef * \
                 collisions+electricity_coef*electricity_cost+stall_torque_coef * \
                 stall_torque_cost + joints_at_limits_coef*joints_at_limits
         return reward
@@ -150,6 +163,7 @@ class MMWalkerEnv(gym.Env):
 
     def _calculate_done(self):
         return self._alive < 0
+        #return False
 
 
     def _calculate_feet_collisions(self):
@@ -161,15 +175,12 @@ class MMWalkerEnv(gym.Env):
         for i in links.keys():
             cp = p.getContactPoints(self.robot,self.robot,i)
             collision_points += len(cp)
-            # if self.isDebug:
-            #     for point in cp:
-            #         print(f'Collision point {links[i]}: {point}')
+            if self.isDebug:
+                for point in cp:
+                    print(f'Collision point {links[i]}: {point}')
         if self.isDebug:
             print(f'Number of collisions:{collision_points}')
-        if collision_points > 0:
-            return -1
-        else:
-            return +1
+        return collision_points
            
     def _calculate_electricity_cost(self,):
         cost = float(np.abs(self.joint_torques * self.joint_velocities).mean())
@@ -237,11 +248,11 @@ class MMWalkerEnv(gym.Env):
         self.joint_velocities =  np.array([j[1] for j in joint_states])
         self.joint_torques =  np.array([j[3] for j in joint_states])
 
-        if self.isDebug:
-            for i in range(8):
-                print(f'Joint positions {i}: {self.joint_positions[i]}')
-                print(f'Joint velocities {i}: {self.joint_velocities[i]}')
-                print(f'Joint torques {i}: {self.joint_torques[i]}')
+        # if self.isDebug:
+        #     for i in range(8):
+        #         print(f'Joint positions {i}: {self.joint_positions[i]}')
+        #         print(f'Joint velocities {i}: {self.joint_velocities[i]}')
+        #         print(f'Joint torques {i}: {self.joint_torques[i]}')
 
         height = position[2] - self.start_pos_z
         sinus = np.sin(angle_to_target)
