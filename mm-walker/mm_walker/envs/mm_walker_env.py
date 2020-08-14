@@ -23,10 +23,11 @@ class MMWalkerEnv(gym.Env):
         self.observation_space = spaces.Box(
             low=-5, high=5, shape=(28,), dtype=np.float32)
         self._observation = []
-
+        self.num_steps = 0
         self.dt = 1./2400.
         self.freq = 5
         self.maxVelocity = 5.1
+        self.max_steps = 1e3
         self.potential = 0
         self._alive = 1
         self.isDebug = False
@@ -36,8 +37,7 @@ class MMWalkerEnv(gym.Env):
         self.isRender = render
         self.logVideo = False
         self._seed()
-
-    def reset(self):
+        self.stateId = -1
         if self.isRender:
             self.physicsClient = p.connect(p.GUI)
         else:
@@ -48,26 +48,28 @@ class MMWalkerEnv(gym.Env):
         p.setAdditionalSearchPath(pybullet_data.getDataPath()) 
         if self.logVideo and self.isRender:
             p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, self.logDir)
-        cubeStartPos = [self.start_pos_x,self.start_pos_y,self.start_pos_z]
-        cubeStartOrientation = p.getQuaternionFromEuler([0,0,0])
+        self.cubeStartPos = [self.start_pos_x,self.start_pos_y,self.start_pos_z]
+        self.cubeStartOrientation = p.getQuaternionFromEuler([0,0,0])
         path = os.path.abspath(os.path.dirname(__file__))
         self.plane = p.loadURDF("plane.urdf")
         #self.plane = p.loadURDF((os.path.join(path, "urdf/plane.urdf")))
         self.robot = p.loadURDF(os.path.join(path, "urdf/robot.urdf"),
-                                cubeStartPos,
-                                cubeStartOrientation, flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_INERTIA_FROM_FILE|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
-        self._observation = self._calculate_observation()
-        self._calculate_progress()
+                                self.cubeStartPos,
+                                self.cubeStartOrientation, flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_INERTIA_FROM_FILE|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+        self._observation = []
         for i in range(8):
             p.enableJointForceTorqueSensor(self.robot,i)
-        if self.isDebug:
-            _link_name_to_index = {p.getBodyInfo(self.robot)[0].decode('UTF-8'):-1,}
-            for _id in range(p.getNumJoints(self.robot)):
-                _name = p.getJointInfo(self.robot, _id)[12].decode('UTF-8')
-                _link_name_to_index[_name] = _id
-                #print(f'Link: {_name} {_id}')
-        return self._observation
 
+
+    def reset(self):
+        if (self.stateId < 0):
+            self.stateId = p.saveState()
+        else:
+            p.restoreState(self.stateId)
+        self.num_steps = 0
+        self._observation = self._calculate_observation(calculate_feet_contacts=False)
+        self._calculate_progress()
+        return self._observation
 
     def _seed(self, seed=None):
         self.np_random, seed = gym.utils.seeding.np_random(seed)
@@ -91,6 +93,7 @@ class MMWalkerEnv(gym.Env):
         for _ in range(int(1/(self.dt*self.freq))):
             self._apply_action(action)
             p.stepSimulation()
+        self.num_steps +=1
         observation = self._calculate_observation()
         reward = self._calculate_reward()
         self.reward = reward
@@ -118,10 +121,10 @@ class MMWalkerEnv(gym.Env):
     def _calculate_reward(self):
         alive_coef = 1.0
         progress_coef = 1.0e1
-        feet_collissions_coef = -2
-        electricity_coef = -1.0e-4
-        stall_torque_coef = -1.0e-9
-        joints_at_limits_coef = -1.0
+        feet_collissions_coef = -1.0
+        electricity_coef = -1e-7
+        stall_torque_coef = -1.0e-11
+        joints_at_limits_coef = -0.5
         alive = self._calculate_alive_bonus()
         collisions = self._calculate_feet_collisions()
         progress = self._calculate_progress()
@@ -162,7 +165,10 @@ class MMWalkerEnv(gym.Env):
         return joints_at_limits
 
     def _calculate_done(self):
-        return self._alive < 0
+        if self.num_steps>self.max_steps:
+            return True
+        else:
+            return self._alive < 0
         #return False
 
 
@@ -215,19 +221,23 @@ class MMWalkerEnv(gym.Env):
             print(f'Number of CP:{ground_not_feet_contacts}, Alive: {self._alive}')
         return self._alive
 
-    def _calculate_observation(self):
+    def _calculate_observation(self, calculate_feet_contacts=True):
         position, orientation = p.getBasePositionAndOrientation(self.robot)
         roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
         (vx, vy, vz), _ = p.getBaseVelocity(self.robot)
-        base_velocity = np.array([vx,vy,vz])
+        base_velocity = np.array([vx, vy, vz])
+        
         feet_ground_contacts = []
-        links = {1:"front_left",
-                3:"rear_left",
-                5:"front_right",
-                7:"rear_right"}
-        for i in links.keys():
-            cp = p.getContactPoints(self.robot,self.plane,i)
-            feet_ground_contacts.append(len(cp))
+        links = {1: "front_left",
+                 3: "rear_left",
+                 5: "front_right",
+                 7: "rear_right"}
+        if calculate_feet_contacts:
+            for i in links.keys():
+                cp = p.getContactPoints(self.robot,self.plane,i)
+                feet_ground_contacts.append(len(cp))
+        else:
+            feet_ground_contacts = [0,0,0,0]
         if self.isDebug:
             print(f'Ground contacts: {feet_ground_contacts}')
 
@@ -264,7 +274,7 @@ class MMWalkerEnv(gym.Env):
             vxn,vyn,vzn,
             roll,pitch,
         ])
-        observation_array = np.clip(np.concatenate((observation_array,self.joint_positions,self.joint_velocities,feet_ground_contacts)),-5,5)
+        observation_array = np.concatenate((observation_array,self.joint_positions,self.joint_velocities,feet_ground_contacts))
         if self.isDebug:
             print(f'Observation shape: {np.shape(observation_array)}')
         return observation_array
