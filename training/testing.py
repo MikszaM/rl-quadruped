@@ -4,6 +4,7 @@ import mm_walker
 import pybullet as p
 import pybullet_data
 import os
+import time
 from stable_baselines import PPO2
 from gym.utils import seeding
 from stable_baselines.common.policies import FeedForwardPolicy, register_policy
@@ -36,8 +37,8 @@ def main():
     env.norm_reward = False
     obs = env.reset()
     done = False
+    print("Start")
     while not done:
-        print("Start")
         #input()
         action, state = model.predict(obs, state=None, deterministic=True)
         obs, reward, done, info = env.step(action)

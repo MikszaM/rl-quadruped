@@ -85,7 +85,7 @@ def main(first_run):
     start_time = time.time()
     env_id = "mm-walker-v0"
     num_cpu = 4
-    total_timesteps = 1000000
+    total_timesteps = 750000
     checkpoint_frequency = 2500
     eval_frequency = 5000
    

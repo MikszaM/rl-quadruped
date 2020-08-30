@@ -11,7 +11,7 @@ angles = []
 for i in range(8):
     angles.append(p.addUserDebugParameter(f'servo_{i}', -3, 3, 0))
 
-robot = p.loadURDF('rl-quadruped/mm-walker/mm_walker/envs/urdf/robot_simple.urdf', [0, 0, 1], flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_INERTIA_FROM_FILE|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+robot = p.loadURDF('rl-quadruped/mm-walker/mm_walker/envs/urdf/robot.urdf', [0, 0, 1], flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_INERTIA_FROM_FILE|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 number_of_joints = p.getNumJoints(robot)
 for joint_number in range(number_of_joints):
     info = p.getJointInfo(robot, joint_number)

@@ -12,8 +12,10 @@ class MMWalkerEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 60}
 
     def __init__(self, render = False):
-        self.low_limits = np.array([-0.2,-2.4,-2.4,-0.2,-2.2,-1.9,-2.2,-1.2])
-        self.high_limits = np.array([2.4,0.2,0.2,2.4,1.9,2.2,1.9,2.2])
+        # self.low_limits = np.array([-0.2,-2.4,-2.4,-0.2,-2.2,-1.9,-2.2,-1.2])
+        # self.high_limits = np.array([2.4,0.2,0.2,2.4,1.9,2.2,1.9,2.2])
+        self.low_limits = np.array([ -0.2,   1.9,   0.2,  -1.9,   0.2,     1.9,   -0.2,  -1.9])
+        self.high_limits = np.array([ 2.4,  -2.2,  -2.4,   2.2,  -2.4,    -2.2,    2.4,   2.2])
 
         self.action_space = spaces.Box(
             low=np.array([-1,-1,-1,-1,-1,-1,-1,-1]),
@@ -25,15 +27,15 @@ class MMWalkerEnv(gym.Env):
         self._observation = []
         self.num_steps = 0
         self.dt = 1./2400.
-        self.freq = 5
+        self.freq = 2
         self.maxVelocity = 5.1
-        self.max_steps = 1e3
+        self.max_steps = 1e2
         self.potential = 0
         self._alive = 1
         self.isDebug = False
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0.315
         self.walk_target_x = 0
-        self.walk_target_y = 1e5
+        self.walk_target_y = 1e3
         self.isRender = render
         self.logVideo = False
         self._seed()
@@ -165,7 +167,7 @@ class MMWalkerEnv(gym.Env):
         return joints_at_limits
 
     def _calculate_done(self):
-        if self.num_steps>self.max_steps:
+        if self.num_steps>=self.max_steps:
             return True
         else:
             return self._alive < 0
@@ -240,7 +242,7 @@ class MMWalkerEnv(gym.Env):
             feet_ground_contacts = [0,0,0,0]
         if self.isDebug:
             print(f'Ground contacts: {feet_ground_contacts}')
-
+        #print(f"y position at: {self.num_steps} is x: {position[0]}, y: {position[1]}")
         self.walk_target_dist = np.linalg.norm(
             [self.walk_target_y - position[1], self.walk_target_x - position[0]])
 
