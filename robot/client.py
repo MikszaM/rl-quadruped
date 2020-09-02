@@ -40,25 +40,31 @@ def main():
     done = False
     HOST = '192.168.0.220'
     PORT = 5005
-    start = time.time()
 
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         print("Start")
+        input()
+        start = time.time()
         while not done:
             action, state = model.predict(obs, state=None, deterministic=True)
             action_string = ""
             for a in action[0]:
                 action_string += f'{a:.2f},'
             action_string = action_string[:-1]
+
+            elapsed = time.time()-start
+            while(elapsed<0.1):
+                elapsed = time.time()-start
+            print(elapsed)
+            start = time.time()
+
             s.sendall(action_string.encode())
             print(action_string)
             obs, reward, done, info = env.step(action)
-            elapsed = time.time() - start
-            start = time.time()
-            print(elapsed)
-            print(reward)
+            
+        s.sendall("0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00".encode())
         
 
 if __name__ == "__main__":

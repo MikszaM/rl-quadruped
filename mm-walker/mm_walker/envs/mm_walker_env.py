@@ -27,15 +27,15 @@ class MMWalkerEnv(gym.Env):
         self._observation = []
         self.num_steps = 0
         self.dt = 1./2400.
-        self.freq = 2
+        self.freq = 10
         self.maxVelocity = 5.1
-        self.max_steps = 1e2
+        self.max_steps = 100
         self.potential = 0
         self._alive = 1
         self.isDebug = False
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0.315
         self.walk_target_x = 0
-        self.walk_target_y = 1e3
+        self.walk_target_y = 1e4
         self.isRender = render
         self.logVideo = False
         self._seed()
@@ -124,8 +124,8 @@ class MMWalkerEnv(gym.Env):
         alive_coef = 1.0
         progress_coef = 1.0e1
         feet_collissions_coef = -1.0
-        electricity_coef = -1e-7
-        stall_torque_coef = -1.0e-11
+        electricity_coef = -1e-5
+        stall_torque_coef = -1.0e-10
         joints_at_limits_coef = -0.5
         alive = self._calculate_alive_bonus()
         collisions = self._calculate_feet_collisions()

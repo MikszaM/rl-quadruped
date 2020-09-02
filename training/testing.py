@@ -38,11 +38,18 @@ def main():
     obs = env.reset()
     done = False
     print("Start")
+    start = time.time()
     while not done:
         #input()
+        elapsed = time.time()-start
+        while(elapsed<0.1):
+            elapsed = time.time()-start
+        print(elapsed)
+        start = time.time()
+
         action, state = model.predict(obs, state=None, deterministic=True)
+        
         obs, reward, done, info = env.step(action)
-        print(reward)
         
 
 if __name__ == "__main__":
