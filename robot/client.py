@@ -55,7 +55,7 @@ def main():
             action_string = action_string[:-1]
 
             elapsed = time.time()-start
-            while(elapsed<0.1):
+            while(elapsed<0.2):
                 elapsed = time.time()-start
             print(elapsed)
             start = time.time()

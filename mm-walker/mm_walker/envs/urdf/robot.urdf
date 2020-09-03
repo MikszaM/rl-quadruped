@@ -26,7 +26,7 @@
         </collision>
         <inertial>
             <origin xyz="0 -0.1 -0.1" rpy="0 0 0" />
-            <mass value="561"/>
+            <mass value="750"/>
             <inertia ixx="116.6" ixy="-1.1" ixz="-0.05" iyy="102.5" iyz="4.0" izz="198.5"/>
         </inertial>
          <contact> 
