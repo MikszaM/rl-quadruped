@@ -55,10 +55,6 @@ class SaveVecNormalizeCallback(BaseCallback):
         return True
 
 class TensorboardCallback(BaseCallback):
-    """
-    Custom callback for plotting additional values in tensorboard.
-    """
-
     def __init__(self, verbose=0):
         self.is_tb_set = False
         super(TensorboardCallback, self).__init__(verbose)
@@ -82,7 +78,6 @@ def make_env(env_id, rank, seed=0):
 
 
 def main(first_run):
-    start_time = time.time()
     env_id = "mm-walker-v0"
     num_cpu = 4
     total_timesteps = 500000
@@ -125,8 +120,7 @@ def main(first_run):
     model.save(model_filepath)
     env.save(vec_log)
     print(f"Saving to : {model_filepath}")
-    elapsed_time = time.time() - start_time
-    print(f"Elapsed time: {elapsed_time}")
+    
 
 
 if __name__ == "__main__":

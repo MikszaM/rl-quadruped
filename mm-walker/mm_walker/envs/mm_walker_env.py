@@ -6,25 +6,20 @@ import pybullet_data
 import os
 import time
 import numpy as np
-
+from PIL import Image
 
 class MMWalkerEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 60}
 
-    def __init__(self, render = False):
-        # self.low_limits = np.array([-0.2,-2.4,-2.4,-0.2,-2.2,-1.9,-2.2,-1.2])
-        # self.high_limits = np.array([2.4,0.2,0.2,2.4,1.9,2.2,1.9,2.2])
+    def __init__(self, render = False, logDir = ""):
         self.low_limits = np.array([ -0.2,   1.9,   0.2,  -1.9,   0.2,     1.9,   -0.2,  -1.9])
         self.high_limits = np.array([ 2.4,  -2.2,  -2.4,   2.2,  -2.4,    -2.2,    2.4,   2.2])
-
         self.action_space = spaces.Box(
             low=np.array([-1,-1,-1,-1,-1,-1,-1,-1]),
             high=np.array([1,1,1,1,1,1,1,1]),
             dtype=np.float32)
-
         self.observation_space = spaces.Box(
             low=-5, high=5, shape=(28,), dtype=np.float32)
-        self._observation = []
         self.num_steps = 0
         self.dt = 1./2400.
         self.freq = 5
@@ -47,17 +42,23 @@ class MMWalkerEnv(gym.Env):
         p.resetSimulation()
         p.setTimeStep(self.dt)
         p.setGravity(0, 0, -100)
-        p.setAdditionalSearchPath(pybullet_data.getDataPath()) 
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
+
+        if logDir != "":
+            self.logVideo = True
+            self.logDir = logDir
+            
         if self.logVideo and self.isRender:
-            p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, self.logDir)
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+            p.setRealTimeSimulation(False)
         self.cubeStartPos = [self.start_pos_x,self.start_pos_y,self.start_pos_z]
         self.cubeStartOrientation = p.getQuaternionFromEuler([0,0,0])
         path = os.path.abspath(os.path.dirname(__file__))
         self.plane = p.loadURDF("plane.urdf")
-        #self.plane = p.loadURDF((os.path.join(path, "urdf/plane.urdf")))
         self.robot = p.loadURDF(os.path.join(path, "urdf/robot.urdf"),
                                 self.cubeStartPos,
-                                self.cubeStartOrientation, flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_INERTIA_FROM_FILE|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+                                self.cubeStartOrientation, 
+                                flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_INERTIA_FROM_FILE|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
         self._observation = []
         for i in range(8):
             p.enableJointForceTorqueSensor(self.robot,i)
@@ -91,11 +92,24 @@ class MMWalkerEnv(gym.Env):
         self.isDebug = True
 
 
-    def step(self, action):
-        for _ in range(int(1/(self.dt*self.freq))):
+    def step(self, action):  
+        for i in range(int(1/(self.dt*self.freq))):
+            if self.isRender and self.logVideo:
+                cubePos, _ = p.getBasePositionAndOrientation(self.robot)
+                #cubePosFinal = (cubePos[0]+1,cubePos[1],cubePos[2])
+                cubePosFinal = (cubePos[0],cubePos[1],cubePos[2])
+                #p.resetDebugVisualizerCamera( cameraDistance=2, cameraYaw=80, cameraPitch=-55, cameraTargetPosition=cubePosFinal)
+                p.resetDebugVisualizerCamera( cameraDistance=5, cameraYaw=50, cameraPitch=-35, cameraTargetPosition=cubePosFinal)
+            if self.logVideo:
+                if i%(int(1/(self.dt*30)))==0:
+                    visual=p.getCameraImage(1920, 1080, renderer=p.ER_BULLET_HARDWARE_OPENGL)
+                    rgba = bytes(visual[2])
+                    img = Image.frombytes('RGBA', (1920, 1080), rgba)
+                    img.save(self.logDir+f"{self.num_steps}_{i}.png")
             self._apply_action(action)
             p.stepSimulation()
         self.num_steps +=1
+        #print(f"Episode length: {self.num_steps}")
         observation = self._calculate_observation()
         reward = self._calculate_reward()
         self.reward = reward
@@ -212,9 +226,6 @@ class MMWalkerEnv(gym.Env):
         for i in links.keys():
             cp = p.getContactPoints(self.robot,self.plane,i)
             ground_not_feet_contacts += len(cp)
-            # if self.isDebug:
-            #     for point in cp:
-            #         print(f'Contact point {links[i]}: {point}')
         if ground_not_feet_contacts > 0:
             self._alive = -1
         else:
@@ -223,12 +234,8 @@ class MMWalkerEnv(gym.Env):
             print(f'Number of CP:{ground_not_feet_contacts}, Alive: {self._alive}')
         return self._alive
 
-    def _calculate_observation(self, calculate_feet_contacts=True):
-        position, orientation = p.getBasePositionAndOrientation(self.robot)
-        roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
-        (vx, vy, vz), _ = p.getBaseVelocity(self.robot)
-        base_velocity = np.array([vx, vy, vz])
-        
+
+    def _calculate_feet_contact(self,calculate_feet_contacts):
         feet_ground_contacts = []
         links = {1: "front_left",
                  3: "rear_left",
@@ -240,12 +247,19 @@ class MMWalkerEnv(gym.Env):
                 feet_ground_contacts.append(len(cp))
         else:
             feet_ground_contacts = [0,0,0,0]
-        if self.isDebug:
-            print(f'Ground contacts: {feet_ground_contacts}')
-        #print(f"y position at: {self.num_steps} is x: {position[0]}, y: {position[1]}")
+        return feet_ground_contacts
+
+
+    def _calculate_observation(self, calculate_feet_contacts=True):
+        position, orientation = p.getBasePositionAndOrientation(self.robot)
+        roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
+        (vx, vy, vz), _ = p.getBaseVelocity(self.robot)
+        base_velocity = np.array([vx, vy, vz])
+        feet_ground_contacts = self._calculate_feet_contact(calculate_feet_contacts)
         self.walk_target_dist = np.linalg.norm(
             [self.walk_target_y - position[1], self.walk_target_x - position[0]])
-
+       # print(f"Target distnce: {self.walk_target_dist}")
+        print(f"Distance covered: {self.walk_target_y-self.walk_target_dist}")
         self.walk_target_theta = np.arctan2(self.walk_target_x - position[0],
                                             self.walk_target_y - position[1])
         angle_to_target = self.walk_target_theta + yaw
@@ -260,12 +274,6 @@ class MMWalkerEnv(gym.Env):
         self.joint_velocities =  np.array([j[1] for j in joint_states])
         self.joint_torques =  np.array([j[3] for j in joint_states])
 
-        # if self.isDebug:
-        #     for i in range(8):
-        #         print(f'Joint positions {i}: {self.joint_positions[i]}')
-        #         print(f'Joint velocities {i}: {self.joint_velocities[i]}')
-        #         print(f'Joint torques {i}: {self.joint_torques[i]}')
-
         height = position[2] - self.start_pos_z
         sinus = np.sin(angle_to_target)
         cosinus = np.cos(angle_to_target)
@@ -276,7 +284,8 @@ class MMWalkerEnv(gym.Env):
             vxn,vyn,vzn,
             roll,pitch,
         ])
-        observation_array = np.concatenate((observation_array,self.joint_positions,self.joint_velocities,feet_ground_contacts))
-        if self.isDebug:
-            print(f'Observation shape: {np.shape(observation_array)}')
+        observation_array = np.concatenate((observation_array,
+                                        self.joint_positions,
+                                        self.joint_velocities,
+                                        feet_ground_contacts))
         return observation_array

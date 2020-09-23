@@ -20,7 +20,6 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <!-- <box size="1.31 1.46 0.6305"/> -->
                 <mesh filename="../mesh/Corpus.stl" scale="0.01 0.01 0.01"/>
             </geometry>
         </collision>

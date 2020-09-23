@@ -31,7 +31,6 @@ def main():
     env = gym.make("mm-walker-v0",render=True)
     env.render()
     env.seed(0)
-    env.log("rl-quadruped/training/trained.mp4")
     env = DummyVecEnv([lambda: env]) 
     env = VecNormalize.load(vec_log, env)
     env.training = False
@@ -45,7 +44,7 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         print("Start")
-        input()
+        #input()
         start = time.time()
         while not done:
             action, state = model.predict(obs, state=None, deterministic=True)
@@ -55,13 +54,14 @@ def main():
             action_string = action_string[:-1]
 
             elapsed = time.time()-start
-            while(elapsed<0.2):
+            while(elapsed<0.19):
                 elapsed = time.time()-start
-            print(elapsed)
-            start = time.time()
+            
 
             s.sendall(action_string.encode())
-            print(action_string)
+            print(elapsed)
+            start = time.time()
+            #print(action_string)
             obs, reward, done, info = env.step(action)
             
         s.sendall("0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00".encode())

@@ -15,8 +15,8 @@ class CustomPolicy(FeedForwardPolicy):
 
 tensorboard_log = "rl-quadruped/training/tensorboard"
 
-model_filepath = "rl-quadruped/training/save/rl_model_1200_steps"
-veclog = "rl-quadruped/training/save/rl_1200_steps.pkl"
+model_filepath = "rl-quadruped/training/trainedPPO.zip"
+veclog = "rl-quadruped/training/trainedPPO.pkl"
 env_id = "mm-walker-v0"
 env = gym.make(env_id,render=True)
 env.seed(0)
